@@ -26,9 +26,9 @@ public class TaskLogFormatter extends LogFormatter {
     user_ = Preconditions.checkNotNull(user, "user should not be null");
   }
 
-  protected TaskLogFormatter(String properties, TaskLogFormatter task) {
+  protected TaskLogFormatter(TaskLogFormatter task) {
 
-    super(properties);
+    super(task);
 
     Preconditions.checkNotNull(task, "task should not be null");
 
@@ -37,8 +37,8 @@ public class TaskLogFormatter extends LogFormatter {
     user_ = task.user_;
   }
 
-  public static TaskLogFormatter create(String properties, TaskLogFormatter task) {
-    return new TaskLogFormatter(properties, task);
+  public static TaskLogFormatter create(TaskLogFormatter task) {
+    return new TaskLogFormatter(task);
   }
 
   public static TaskLogFormatter create(String properties, Task task, Environment env) {

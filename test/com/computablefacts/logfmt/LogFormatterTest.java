@@ -289,4 +289,38 @@ public class LogFormatterTest {
     Assert.assertEquals("", map.get("f"));
     Assert.assertEquals("", map.get("%^asdf"));
   }
+
+  @Test
+  public void testAddMessage() {
+
+    String msg = "Java package for generating and parsing log lines in the logfmt style.";
+    LogFormatter lf = LogFormatter.create("git-logfmt.properties").message(msg);
+
+    Assert.assertTrue(lf.formatTrace().contains("msg=\"" + msg + "\""));
+  }
+
+  @Test
+  public void testAddException() {
+
+    LogFormatter lf = LogFormatter.create("git-logfmt.properties")
+        .message(new NullPointerException("My custom message."));
+
+    Assert.assertTrue(
+        lf.formatTrace().contains("msg=\"java.lang.NullPointerException: My custom message."));
+  }
+
+  @Test
+  public void testCopyLogFormatter() {
+
+    LogFormatter lf1 = LogFormatter.create("git-logfmt.properties");
+    LogFormatter lf2 = LogFormatter.create(lf1);
+
+    Map<String, String> map1 = LogFormatter.parse(lf1.formatTrace());
+    Map<String, String> map2 = LogFormatter.parse(lf2.formatTrace());
+
+    map1.remove("timestamp");
+    map2.remove("timestamp");
+
+    Assert.assertEquals(map1, map2);
+  }
 }

@@ -92,4 +92,19 @@ public class TaskLogFormatterTest {
     verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.TRACE)).formatTrace(),
         params(TaskLogFormatter.eLogLevel.TRACE));
   }
+
+  @Test
+  public void testCopyTaskLogFormatter() {
+
+    TaskLogFormatter lf1 = taskLogFormatter();
+    LogFormatter lf2 = TaskLogFormatter.create(lf1);
+
+    Map<String, String> map1 = LogFormatter.parse(lf1.formatTrace());
+    Map<String, String> map2 = LogFormatter.parse(lf2.formatTrace());
+
+    map1.remove("timestamp");
+    map2.remove("timestamp");
+
+    Assert.assertEquals(map1, map2);
+  }
 }
