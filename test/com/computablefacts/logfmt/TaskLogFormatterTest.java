@@ -52,7 +52,8 @@ public class TaskLogFormatterTest {
   }
 
   static TaskLogFormatter taskLogFormatter() {
-    return TaskLogFormatter.create(new TaskLogFormatter.Task("test_formatter"),
+    return TaskLogFormatter.create("git-logfmt.properties",
+        new TaskLogFormatter.Task("test_formatter"),
         new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL));
   }
 

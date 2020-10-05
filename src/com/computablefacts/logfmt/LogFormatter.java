@@ -42,8 +42,8 @@ public class LogFormatter {
   private final String gitHead_;
   private final boolean gitIsDirty_;
 
-  protected LogFormatter() {
-    Map<String, Object> gitProperties = loadGitProperties();
+  protected LogFormatter(String properties) {
+    Map<String, Object> gitProperties = loadGitProperties(properties);
     gitBuildVersion_ = (String) gitProperties.getOrDefault("git.build.version", "");
     gitOrigin_ = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
     gitBranch_ = (String) gitProperties.getOrDefault("git.branch", "");
@@ -59,8 +59,8 @@ public class LogFormatter {
     gitIsDirty_ = logFormatter.gitIsDirty_;
   }
 
-  public static LogFormatter create() {
-    return new LogFormatter();
+  public static LogFormatter create(String properties) {
+    return new LogFormatter(properties);
   }
 
   public static LogFormatter create(LogFormatter logFormatter) {
@@ -211,14 +211,15 @@ public class LogFormatter {
    *
    * @return
    */
-  private static Map<String, Object> loadGitProperties() {
-    try {
+  private static Map<String, Object> loadGitProperties(String properties) {
 
-      ClassLoader classLoader = TaskLogFormatter.class.getClassLoader();
-      InputStream inputStream = classLoader.getResourceAsStream("git.properties");
+    Preconditions.checkNotNull(properties, "properties should not be null");
+
+    try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
+
       StringBuilder builder = new StringBuilder();
 
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
         @Var
         String line;
