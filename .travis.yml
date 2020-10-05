@@ -2,29 +2,29 @@ os: linux
 dist: trusty
 language: java
 jdk:
-  - openjdk8
+- openjdk8
 install: "/bin/true"
 script:
-  - mvn clean install -q -B
+- mvn clean install -q -B
 env:
   global:
-  - secure: TP5LYn9M6yBXxKy0S1LtyHA9V3sAPcbSdj3P19g1V6gLKY6RZAe36cFEYZ4zBDsbmuB1m1PQt0dCr+DAd9pgQVFQc3jwgek1Bs/1IcwrPabSeej+qZllA7Jy6UsWOqY8oVvK7Z88JMBta$
-  - secure: mD67ZnBR+RmKFrddiMBvdV9kTZDENSs7q7AOdjtd85wfvYL/C5NB9DF062SHLVnbJgNMJ6SqOLqpJpDCG5h57a7P5mpJQuSFskTyxX0LScg4OpQyQR+3y+BBTs7MV9/NPgRflOqWjEYHl$
-  - secure: Eszt5RRTejtSKbqaF8LE+DepcdIYsAXzP+Y8BzfPy5RAopV+A9rT9yk92aGxYHPNEdGEANgk1eceAEsBDp/G4aBymiL98nOSpGUmqdf5KStcXXbZtDKPb6JSUB9O4f2LVALHts1jAgMw2$
-  - secure: lIxhptW1KFXwZHRkEJv2oqPn8cLc7zC039znBHAVMWhdjxhDYXRGmpnfs6jzguIH3fsCAwz65cOf3Fuy/AROh7IQB8/MVcK/zOAm70R4sZ5EmzGWlo6O0gj2Os/wgwk5METTuBWV8fiuF$
-before_deploy:
+  - secure: Bx10XwYuB+J4oaC551pDaGAx1qUZP2lAEivtVHCE2qPyVT3qFAPWzXnHrtDvuSI0LxOK33/7zzlwZOagWt0ckNIPZ9oEM+AZ4w1f8aYxoUiBktrm8kWnXxarKYDccr6DMlOX2F5OirQ/OyqitpvWnKqcBOE5FSimJ3ZUZMzapgq8UI0CRsBQf25TGPRgwKL5h4ai2hdv9/GxDJuo7WiWTLaLWt/4OGeMNI8upnD0Omrt4w2wRjUBuov+I/YpUx5lCNifwaxYkn7qRV629HyJHAnqleH2z8nMQDB3lp//VuZjANWIwJ/U49JAG8bPtuf0RlrUd5bJhT71vIxB5NNe7eQaYitabOvE3upCyxY47kkGTxifCu07NW+BQBKNLsXoeCVXpy6ze9RkdR9HX6URljnc0xBHxVMKB4rWrM3aC7nStp+b2xACK+Y2xV3TXhqB47h34ee7+lp4u9dZkVHZzOqsMU1gZrB3O9vK8uCC+tWJq+QdMPdud7LQo81uGoCAYHlg1rphlvyOp4UQ/irDnjqIbgMG7gP+qgFn1bHdMtJXZko3ZVk/S6qyUXVTyUpSnuoz77Q9U1UNc2NxncefLP/H7xiu5JC+vjyYRc02PrnDPUu8lEeqdBAq5XroQmGo0tl/r7rlENvLIYrEl+KNh9EZ7pX+BHcm7etJLvY+Su0=
+  - secure: m1OZRsCVDemlqdVpWgluEAiEjo65CkaO+H52hi8jp/d65jWLgrEP6U6OyVK/f2xS21mgJ6A9sDQXp87ZWQ74SSCeMcDIEvXHp7e2UOlM92cLnZKKKP3KfMw7uUGniodksxG5EtHORim8tsEA8u6/P24HZfH78eemLWkUbjueKbJEYvtoKmb8id/trQ7E6jcmB8ylbMm80t+P1GsTX389Coiph07XJ7VrPzAKiut3KFcEpOYlWMsmAjyB9+rLZNTetHZl3rgV1RoTVHhhGW6Urg7MRMXeR7HPAMUMrFKjbSlkBHAzYIpkWC56mupQ8FX5zuH6c5Po/HlSUDocBkHhlAidXBRlBFU8B2YASIboT6yCCQmutr0vZgYQySCxosKQvhEpiH87UyfymvzAjk7V+JLio3DV4qUy0TRkUXptwSLd44y3C/Oo1f2MI6bKJ1l24Wj9LimiMHzkyiB9OaopJakY1CSLVtWXIR+0kQLpBDspVQVBBAvC7nJdnoyQ08lykSAYOb7zat2NlTr/yYACgGmX29hLgq1Bc3RoYcc8zF45dTE8KhGR6QNcr+mRf8LzB7LkijSGwbYa+oJCJ/PpK3p1dGBcPqNpE1naQ0pbk4AwPvxKekZ/6Kka/yWMh0j575VmbabGjF+9taTd6hs1YLasc7lhp64/AeGeLs1eomI=
+  - secure: udqSYUvOv3Op6xALKfpbMv0EGZS7u79MceqJBJRGiecI9XUvSV8+wi2Vf7ST1ReC82jc7WNaQFwjkyIRxo3ekJC5qBgN+eAvbZvhMzw5v17nF7OagzBqsFYOzuaM6e8MdyrPi6TBhm4o1bK6UMiSxSmfewQjRKk+mEpba0cBzGwFa+UCmKAYdPBtgPMkrwaLhbvF3MjHvtswtLXPtN3+BatU45+x+FUngRmwUFWbGzuSBFuacjK6w9tcA4qqk7nPRQyCzIcZWnvkm8I4hnDbQRJDdBZexG58jHeKK2zfxk2tuIg08vKaJMX/cKa4R/tKHOj7L922SV2obc7hm94C0X/deBi/M8X7ueCljcsVE83hqJ/Bps6JxhcKHmKk8Do3pK04pYphuXAvE9OBitdTFscGFOCFdlopEBf/GQEZ1yHykbGzq2XFWZa8bi0HVhQDmXeLtNEm+qXlcKRpcIgt/A0D3Z70tJ5lrHyUWjNcS3T5Zx0BpcVwxr0m/On+l+Ot9Gl31qfWsOnEkE5PaljfM8Ve/wPg5FMs9jA+x7owT5W87aKDvkqCkoBqf9FFYkvGIgXaxEHgFJHcClcCI3YZcACnOCH28eWIUZYtOikPbU9ikrpWj5YrOxoecOGiM8u/u+8GlTG//zR5UIm9Wcmvbc1km1jZjVsNy7eSWKwRTmg=
+  - secure: fcApdWgrOj88PUB4S3t02TGFCtV7wD38TvmsHSChCI6y3ocfWZyTQB6ObEoJtZVf6UMnl5VTjEyZS4+CMJlm6uNuQNaSFzNqlrWIdowFvYhnUxpyZnUBYD8u92OX718inSPdSeAkSDUR7IVy2oy2hIA+zJN5txYZ2wUo0UtXhSUHPZ1wU9sVClSTIWfGEpuT39e8fq5UVF/6Y5cELeUVsNureaOz8Pg+Sw/afTyTD+gK42rvZOGcLI9ntbMIwGFHv+s4dF85QsFTRxCzz8phRWxg70i+dg2MP9H91Cs7mUuEdZ9B82wNYsFNnVDiTi+9YURLWagThY6SfO6547T+V/jygtYFazdKgipp2HzCLDFB7OmFln+Cy8kR5zjsvtirjqlKMUebplj+Z6EYR3lg3K7VOwscgFM+cFqNe9cuSjKBD1CqMs1HE5C8ZgSjK+sv6GXzZ7T0yredHC5W7l2mk5/47NfITyO+X1XIoO4MBwZ2JLaAwjltdkexJjKb7OW4D4zGvsp4hGynXGxvTA5oiKkuCI5DJyaNXWn68CAMNfOZDvYWNMCSkJ7ihFDtFHQBEWR1vjpJww6aEdgow9B4z7K1P6GbuYaSbK3ZgVPdpOGoBZ6qcL7ZdZczA9DvNHadP+dkH9liAms4F6mqlkITjNFoI184WVag2CAPrRxq+Ng=
+before_deploy: 
   - openssl aes-256-cbc -K $encrypted_4f0d00631887_key -iv $encrypted_4f0d00631887_iv
     -in .travis/gpg.asc.enc -out .travis/gpg.asc -d
 deploy:
-  - skip_cleanup: true
-    provider: script
-    script: chmod +x ./deploy.sh && ./deploy.sh
-    on:
-      branch: master
-  - skip_cleanup: true
-    provider: script
-    script: chmod +x ./deploy.sh && ./deploy.sh
-    on:
-      tags: true
+- skip_cleanup: true
+  provider: script
+  script: chmod +x ./deploy.sh && ./deploy.sh
+  on:
+    branch: master
+- skip_cleanup: true
+  provider: script
+  script: chmod +x ./deploy.sh && ./deploy.sh
+  on:
+    tags: true
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t 87594e46-1a80-4d07-8fe9-3c786cde93af
+- bash <(curl -s https://codecov.io/bash) -t 87594e46-1a80-4d07-8fe9-3c786cde93af
