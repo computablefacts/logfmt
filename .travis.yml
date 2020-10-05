@@ -6,6 +6,15 @@ jdk:
 install: "/bin/true"
 script:
   - mvn clean install -q -B
+env:
+  global:
+  - secure: TP5LYn9M6yBXxKy0S1LtyHA9V3sAPcbSdj3P19g1V6gLKY6RZAe36cFEYZ4zBDsbmuB1m1PQt0dCr+DAd9pgQVFQc3jwgek1Bs/1IcwrPabSeej+qZllA7Jy6UsWOqY8oVvK7Z88JMBta$
+  - secure: mD67ZnBR+RmKFrddiMBvdV9kTZDENSs7q7AOdjtd85wfvYL/C5NB9DF062SHLVnbJgNMJ6SqOLqpJpDCG5h57a7P5mpJQuSFskTyxX0LScg4OpQyQR+3y+BBTs7MV9/NPgRflOqWjEYHl$
+  - secure: Eszt5RRTejtSKbqaF8LE+DepcdIYsAXzP+Y8BzfPy5RAopV+A9rT9yk92aGxYHPNEdGEANgk1eceAEsBDp/G4aBymiL98nOSpGUmqdf5KStcXXbZtDKPb6JSUB9O4f2LVALHts1jAgMw2$
+  - secure: lIxhptW1KFXwZHRkEJv2oqPn8cLc7zC039znBHAVMWhdjxhDYXRGmpnfs6jzguIH3fsCAwz65cOf3Fuy/AROh7IQB8/MVcK/zOAm70R4sZ5EmzGWlo6O0gj2Os/wgwk5METTuBWV8fiuF$
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_4f0d00631887_key -iv $encrypted_4f0d00631887_iv
+    -in .travis/gpg.asc.enc -out .travis/gpg.asc -d
 deploy:
   - skip_cleanup: true
     provider: script
