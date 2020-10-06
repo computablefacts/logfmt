@@ -43,8 +43,6 @@ public abstract class LogFormatterHttpAppender extends CustomAppender {
       // Ensure the log uses the logfmt format and has at least a timestamp and a level
       if (log.contains("timestamp=") && log.contains("level=")) {
         post(url(), logFormatter.format() + " " + log);
-      } else if (loggingEvent.getLevel().equals(Level.TRACE)) {
-        post(url(), logFormatter.message(log).formatTrace());
       } else if (loggingEvent.getLevel().equals(Level.DEBUG)) {
         post(url(), logFormatter.message(log).formatDebug());
       } else if (loggingEvent.getLevel().equals(Level.INFO)) {

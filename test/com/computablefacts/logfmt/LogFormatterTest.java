@@ -188,18 +188,18 @@ public class LogFormatterTest {
     Assert.assertEquals("\b", map.get("msg"));
   }
 
-  // @Test
-  // public void testLogFmt() {
-  //
-  // String log1 = LogFormatter.create().add("key1", "value1").add("key2", "value 2")
-  // .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
-  // String log2 = LogFormatter.create().message(log1).format();
-  //
-  // Map<String, String> map = LogFormatter.parse(log2);
-  //
-  // Assert.assertEquals(1, map.size());
-  // Assert.assertEquals(log1, map.get("msg"));
-  // }
+  @Test
+  public void testLogFmt() {
+
+    String log1 = LogFormatter.create().add("key1", "value1").add("key2", "value 2")
+        .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
+    String log2 = LogFormatter.create().message(log1).format();
+
+    Map<String, String> map = LogFormatter.parse(log2);
+
+    Assert.assertEquals(1, map.size());
+    Assert.assertEquals(log1, map.get("msg"));
+  }
 
   @Test
   public void testMultipleKeys() {

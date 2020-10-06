@@ -107,7 +107,7 @@ public class LogFormatter {
             char[] key = slice(pos[KEY_START], pos[KEY_LEN], line);
             char[] value = slice(pos[VAL_START], (i - pos[VAL_START]), line);
 
-            parsed.put(new String(key), cleanup(value));
+            parsed.put(new String(key), unquote(value));
 
             state = ScanState.NEXT;
             pos = new int[3];
@@ -126,14 +126,9 @@ public class LogFormatter {
           (pos[VAL_START] > 0) ? slice(pos[VAL_START], line.length - pos[VAL_START], line)
               : new char[0];
 
-      parsed.put(new String(key), cleanup(value));
+      parsed.put(new String(key), unquote(value));
     }
     return parsed;
-  }
-
-  private static String cleanup(char[] value) {
-    return new String(value).replace("\\t", "\t").replace("\\b", "\b").replace("\\n", "\n")
-        .replace("\\r", "\r").replace("\\f", "\f").replace("\\\"", "\"").replace("\\\\", "\\");
   }
 
   private static boolean isChar(char b) {
@@ -144,7 +139,7 @@ public class LogFormatter {
     if (!quoted) {
       return b > SEPARATOR && b != '=' && b != '"';
     }
-    return b >= SEPARATOR && b != '=' && (b != '"' || escaped);
+    return b >= SEPARATOR && (b != '=' || escaped) && (b != '"' || escaped);
   }
 
   private static char[] slice(int start, int len, char[] a) {
@@ -207,11 +202,69 @@ public class LogFormatter {
         case '\\':
           builder.append("\\\\");
           break;
+        case '=':
+          builder.append("\\=");
+          break;
         default:
           builder.append(c);
       }
     }
     return builder.append('"');
+  }
+
+  @CanIgnoreReturnValue
+  private static String unquote(char[] string) {
+    if (string == null) {
+      return "";
+    }
+    if (string.length == 0) {
+      return "";
+    }
+
+    StringBuilder builder = new StringBuilder(string.length);
+
+    for (int i = 0; i < string.length; i++) {
+
+      char curr = string[i];
+
+      if (curr != '\\' || i + 1 >= string.length) {
+        builder.append(curr);
+      } else {
+
+        char next = string[++i];
+
+        switch (next) {
+          case 't':
+            builder.append('\t');
+            break;
+          case 'b':
+            builder.append('\b');
+            break;
+          case 'n':
+            builder.append('\n');
+            break;
+          case 'r':
+            builder.append('\r');
+            break;
+          case 'f':
+            builder.append('\f');
+            break;
+          case '\"':
+            builder.append('"');
+            break;
+          case '\\':
+            builder.append('\\');
+            break;
+          case '=':
+            builder.append('=');
+            break;
+          default:
+            i--;
+            builder.append(curr);
+        }
+      }
+    }
+    return builder.toString();
   }
 
   private static Map<String, Object> asObject(String json) {
