@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.base.Preconditions;
@@ -27,7 +24,6 @@ import com.google.errorprone.annotations.Var;
 @CheckReturnValue
 public class LogFormatter {
 
-  private static final Logger logger_ = LoggerFactory.getLogger(LogFormatter.class);
   private static final ObjectMapper mapper_ = new ObjectMapper();
 
   private static final char SEPARATOR = ' ';
@@ -36,35 +32,11 @@ public class LogFormatter {
   private static final int VAL_START = 2;
 
   private final Map<String, Object> map_ = new ConcurrentHashMap<>();
-  private final String gitBuildVersion_;
-  private final String gitOrigin_;
-  private final String gitBranch_;
-  private final String gitHead_;
-  private final boolean gitIsDirty_;
 
-  protected LogFormatter(String properties) {
-    Map<String, Object> gitProperties = loadGitProperties(properties);
-    gitBuildVersion_ = (String) gitProperties.getOrDefault("git.build.version", "");
-    gitOrigin_ = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
-    gitBranch_ = (String) gitProperties.getOrDefault("git.branch", "");
-    gitHead_ = (String) gitProperties.getOrDefault("git.commit.id", "");
-    gitIsDirty_ = Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
-  }
+  protected LogFormatter() {}
 
-  protected LogFormatter(LogFormatter logFormatter) {
-    gitBuildVersion_ = logFormatter.gitBuildVersion_;
-    gitOrigin_ = logFormatter.gitOrigin_;
-    gitBranch_ = logFormatter.gitBranch_;
-    gitHead_ = logFormatter.gitHead_;
-    gitIsDirty_ = logFormatter.gitIsDirty_;
-  }
-
-  public static LogFormatter create(String properties) {
-    return new LogFormatter(properties);
-  }
-
-  public static LogFormatter create(LogFormatter logFormatter) {
-    return new LogFormatter(logFormatter);
+  public static LogFormatter create() {
+    return new LogFormatter();
   }
 
   public static Map<String, String> parse(String log) {
@@ -159,81 +131,6 @@ public class LogFormatter {
     return parsed;
   }
 
-  /**
-   * Maven's Git commit id must be set :
-   *
-   * <pre>
-   *   <plugin>
-   *       <groupId>pl.project13.maven</groupId>
-   *       <version>${git-commit-id-plugin.version}</version>
-   *       <artifactId>git-commit-id-plugin</artifactId>
-   *       <executions>
-   *           <execution>
-   *               <id>get-the-git-infos</id>
-   *               <goals>
-   *                   <goal>revision</goal>
-   *               </goals>
-   *           </execution>
-   *           <execution>
-   *               <id>validate-the-git-infos</id>
-   *               <goals>
-   *                   <goal>validateRevision</goal>
-   *               </goals>
-   *               <phase>package</phase>
-   *           </execution>
-   *       </executions>
-   *       <configuration>
-   *           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-   *           <prefix>git</prefix>
-   *           <verbose>false</verbose>
-   *           <generateGitPropertiesFile>true</generateGitPropertiesFile>
-   *           <generateGitPropertiesFilename>
-   *               ${project.build.outputDirectory}/git.properties
-   *           </generateGitPropertiesFilename>
-   *           <format>json</format>
-   *           <gitDescribe>
-   *               <skip>false</skip>
-   *               <always>false</always>
-   *               <dirty>-dirty</dirty>
-   *           </gitDescribe>
-   *           <!--
-   *           <validationProperties>
-   *               <validationProperty>
-   *                   <name>validating git dirty</name>
-   *                   <value>${git.dirty}</value>
-   *                   <shouldMatchTo>false</shouldMatchTo>
-   *               </validationProperty>
-   *           </validationProperties>
-   *           -->
-   *       </configuration>
-   *   </plugin>
-   * </pre>
-   *
-   * @return
-   */
-  private static Map<String, Object> loadGitProperties(String properties) {
-
-    Preconditions.checkNotNull(properties, "properties should not be null");
-
-    try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
-
-      StringBuilder builder = new StringBuilder();
-
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-
-        @Var
-        String line;
-
-        while ((line = br.readLine()) != null) {
-          builder.append(line).append('\n');
-        }
-      }
-      return asObject(builder.toString());
-    } catch (IOException e) {
-      return new HashMap<>();
-    }
-  }
-
   private static String cleanup(char[] value) {
     return new String(value).replace("\\t", "\t").replace("\\b", "\b").replace("\\n", "\n")
         .replace("\\r", "\r").replace("\\f", "\f").replace("\\\"", "\"").replace("\\\\", "\\");
@@ -322,7 +219,7 @@ public class LogFormatter {
       return json == null ? Collections.emptyMap()
           : mapper_.readValue(json, TypeFactory.defaultInstance().constructType(Map.class));
     } catch (IOException e) {
-
+      // TODO
     }
     return Collections.emptyMap();
   }
@@ -341,6 +238,24 @@ public class LogFormatter {
       map_.put(key, value == null ? "null" : value);
     }
     return this;
+  }
+
+  @CanIgnoreReturnValue
+  public LogFormatter addGitProperties(String properties) {
+
+    Preconditions.checkNotNull(properties, "properties should not be null");
+
+    Map<String, Object> gitProperties = loadGitProperties(properties);
+
+    String gitBuildVersion_ = (String) gitProperties.getOrDefault("git.build.version", "");
+    String gitOrigin_ = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
+    String gitBranch_ = (String) gitProperties.getOrDefault("git.branch", "");
+    String gitHead_ = (String) gitProperties.getOrDefault("git.commit.id", "");
+    boolean gitIsDirty_ =
+        Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
+
+    return add("git_build_version", gitBuildVersion_).add("git_origin", gitOrigin_)
+        .add("git_branch", gitBranch_).add("git_head", gitHead_).add("git_is_dirty", gitIsDirty_);
   }
 
   public String formatTrace() {
@@ -431,9 +346,82 @@ public class LogFormatter {
   protected synchronized String format(eLogLevel level) {
     return this.add("timestamp", Instant.now().toString())
         .add("level", Preconditions.checkNotNull(level, "level should not be null").toString())
-        .add("git_build_version", gitBuildVersion_).add("git_origin", gitOrigin_)
-        .add("git_branch", gitBranch_).add("git_head", gitHead_).add("git_is_dirty", gitIsDirty_)
         .format();
+  }
+
+  /**
+   * Maven's Git commit id must be set :
+   *
+   * <pre>
+   *   <plugin>
+   *       <groupId>pl.project13.maven</groupId>
+   *       <version>${git-commit-id-plugin.version}</version>
+   *       <artifactId>git-commit-id-plugin</artifactId>
+   *       <executions>
+   *           <execution>
+   *               <id>get-the-git-infos</id>
+   *               <goals>
+   *                   <goal>revision</goal>
+   *               </goals>
+   *           </execution>
+   *           <execution>
+   *               <id>validate-the-git-infos</id>
+   *               <goals>
+   *                   <goal>validateRevision</goal>
+   *               </goals>
+   *               <phase>package</phase>
+   *           </execution>
+   *       </executions>
+   *       <configuration>
+   *           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+   *           <prefix>git</prefix>
+   *           <verbose>false</verbose>
+   *           <generateGitPropertiesFile>true</generateGitPropertiesFile>
+   *           <generateGitPropertiesFilename>
+   *               ${project.build.outputDirectory}/git.properties
+   *           </generateGitPropertiesFilename>
+   *           <format>json</format>
+   *           <gitDescribe>
+   *               <skip>false</skip>
+   *               <always>false</always>
+   *               <dirty>-dirty</dirty>
+   *           </gitDescribe>
+   *           <!--
+   *           <validationProperties>
+   *               <validationProperty>
+   *                   <name>validating git dirty</name>
+   *                   <value>${git.dirty}</value>
+   *                   <shouldMatchTo>false</shouldMatchTo>
+   *               </validationProperty>
+   *           </validationProperties>
+   *           -->
+   *       </configuration>
+   *   </plugin>
+   * </pre>
+   *
+   * @return properties.
+   */
+  private Map<String, Object> loadGitProperties(String properties) {
+
+    Preconditions.checkNotNull(properties, "properties should not be null");
+
+    try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
+
+      StringBuilder builder = new StringBuilder();
+
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+
+        @Var
+        String line;
+
+        while ((line = br.readLine()) != null) {
+          builder.append(line).append('\n');
+        }
+      }
+      return asObject(builder.toString());
+    } catch (IOException e) {
+      return new HashMap<>();
+    }
   }
 
   enum eLogLevel {

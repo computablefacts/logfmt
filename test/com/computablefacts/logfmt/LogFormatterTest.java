@@ -14,7 +14,7 @@ public class LogFormatterTest {
   @Test
   public void testNull() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", null).format();
+    String log = LogFormatter.create().add("msg", null).format();
 
     Assert.assertEquals("msg=null", log);
 
@@ -27,8 +27,8 @@ public class LogFormatterTest {
   @Test
   public void testDoubleQuotes() {
 
-    String log = LogFormatter.create("git-logfmt.properties")
-        .add("msg", "Message with \"double quotes\" inside.").format();
+    String log =
+        LogFormatter.create().add("msg", "Message with \"double quotes\" inside.").format();
 
     Assert.assertEquals("msg=\"Message with \\\"double quotes\\\" inside.\"", log);
 
@@ -43,7 +43,7 @@ public class LogFormatterTest {
 
     Instant now = Instant.parse("2017-11-30T15:10:25Z");
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", now).format();
+    String log = LogFormatter.create().add("msg", now).format();
 
     Assert.assertEquals("msg=2017-11-30T15:10:25Z", log);
 
@@ -61,7 +61,7 @@ public class LogFormatterTest {
 
     Date date = calendar.getTime();
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", date).format();
+    String log = LogFormatter.create().add("msg", date).format();
 
     Assert.assertEquals("msg=2017-11-30T15:10:25Z", log);
 
@@ -74,7 +74,7 @@ public class LogFormatterTest {
   @Test
   public void testInteger() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("port", 443).format();
+    String log = LogFormatter.create().add("port", 443).format();
 
     Assert.assertEquals("port=443", log);
 
@@ -87,7 +87,7 @@ public class LogFormatterTest {
   @Test
   public void testLong() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", 443L).format();
+    String log = LogFormatter.create().add("msg", 443L).format();
 
     Assert.assertEquals("msg=443", log);
 
@@ -100,7 +100,7 @@ public class LogFormatterTest {
   @Test
   public void testDouble() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", 123.456d).format();
+    String log = LogFormatter.create().add("msg", 123.456d).format();
 
     Assert.assertEquals("msg=123.456", log);
 
@@ -113,7 +113,7 @@ public class LogFormatterTest {
   @Test
   public void testFloat() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", 123.456f).format();
+    String log = LogFormatter.create().add("msg", 123.456f).format();
 
     Assert.assertEquals("msg=123.456", log);
 
@@ -126,7 +126,7 @@ public class LogFormatterTest {
   @Test
   public void testBoolean() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", true).format();
+    String log = LogFormatter.create().add("msg", true).format();
 
     Assert.assertEquals("msg=true", log);
 
@@ -139,8 +139,7 @@ public class LogFormatterTest {
   @Test
   public void testException() {
 
-    String log = LogFormatter.create("git-logfmt.properties")
-        .add("msg", new Exception("Custom exception!")).format();
+    String log = LogFormatter.create().add("msg", new Exception("Custom exception!")).format();
 
     Assert.assertTrue(log.contains("Custom exception!"));
 
@@ -153,7 +152,7 @@ public class LogFormatterTest {
   @Test
   public void testFormFeed() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", "\f").format();
+    String log = LogFormatter.create().add("msg", "\f").format();
 
     Assert.assertEquals("msg=\"\\f\"", log);
 
@@ -166,7 +165,7 @@ public class LogFormatterTest {
   @Test
   public void testBackslash() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", "\\").format();
+    String log = LogFormatter.create().add("msg", "\\").format();
 
     Assert.assertEquals("msg=\"\\\\\"", log);
 
@@ -179,7 +178,7 @@ public class LogFormatterTest {
   @Test
   public void testWordBoundary() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg", "\b").format();
+    String log = LogFormatter.create().add("msg", "\b").format();
 
     Assert.assertEquals("msg=\"\\b\"", log);
 
@@ -189,12 +188,24 @@ public class LogFormatterTest {
     Assert.assertEquals("\b", map.get("msg"));
   }
 
+  // @Test
+  // public void testLogFmt() {
+  //
+  // String log1 = LogFormatter.create().add("key1", "value1").add("key2", "value 2")
+  // .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
+  // String log2 = LogFormatter.create().message(log1).format();
+  //
+  // Map<String, String> map = LogFormatter.parse(log2);
+  //
+  // Assert.assertEquals(1, map.size());
+  // Assert.assertEquals(log1, map.get("msg"));
+  // }
+
   @Test
   public void testMultipleKeys() {
 
-    String log =
-        LogFormatter.create("git-logfmt.properties").add("key1", "value1").add("key2", "value 2")
-            .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
+    String log = LogFormatter.create().add("key1", "value1").add("key2", "value 2")
+        .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
 
     Assert.assertEquals(
         "key1=value1 key2=\"value 2\" key3=\"Hello \\\"world\\\"!\\nHello \\\"world\\\"!\" key4=4",
@@ -210,9 +221,21 @@ public class LogFormatterTest {
   }
 
   @Test
+  public void testNullKey() {
+
+    String log = LogFormatter.create().add(null, "msg").format();
+
+    Assert.assertEquals("", log);
+
+    Map<String, String> map = LogFormatter.parse(log);
+
+    Assert.assertEquals(0, map.size());
+  }
+
+  @Test
   public void testLargeString() {
 
-    String log = LogFormatter.create("git-logfmt.properties").add("msg",
+    String log = LogFormatter.create().add("msg",
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")
         .format();
 
@@ -294,7 +317,7 @@ public class LogFormatterTest {
   public void testAddMessage() {
 
     String msg = "Java package for generating and parsing log lines in the logfmt style.";
-    LogFormatter lf = LogFormatter.create("git-logfmt.properties").message(msg);
+    LogFormatter lf = LogFormatter.create().message(msg);
 
     Assert.assertTrue(lf.formatTrace().contains("msg=\"" + msg + "\""));
   }
@@ -302,25 +325,9 @@ public class LogFormatterTest {
   @Test
   public void testAddException() {
 
-    LogFormatter lf = LogFormatter.create("git-logfmt.properties")
-        .message(new NullPointerException("My custom message."));
+    LogFormatter lf = LogFormatter.create().message(new NullPointerException("My custom message."));
 
     Assert.assertTrue(
         lf.formatTrace().contains("msg=\"java.lang.NullPointerException: My custom message."));
-  }
-
-  @Test
-  public void testCopyLogFormatter() {
-
-    LogFormatter lf1 = LogFormatter.create("git-logfmt.properties");
-    LogFormatter lf2 = LogFormatter.create(lf1);
-
-    Map<String, String> map1 = LogFormatter.parse(lf1.formatTrace());
-    Map<String, String> map2 = LogFormatter.parse(lf2.formatTrace());
-
-    map1.remove("timestamp");
-    map2.remove("timestamp");
-
-    Assert.assertEquals(map1, map2);
   }
 }

@@ -13,22 +13,17 @@ public class TaskLogFormatter extends LogFormatter {
   protected final Environment env_; // infos about the environment running the task
   protected final User user_; // infos about the caller/user who triggered the task
 
-  protected TaskLogFormatter(String properties, Task task, Environment env) {
-    this(properties, task, env, new User());
+  protected TaskLogFormatter(Task task, Environment env) {
+    this(task, env, new User());
   }
 
-  protected TaskLogFormatter(String properties, Task task, Environment env, User user) {
-
-    super(properties);
-
+  protected TaskLogFormatter(Task task, Environment env, User user) {
     task_ = Preconditions.checkNotNull(task, "task should not be null");
     env_ = Preconditions.checkNotNull(env, "env should not be null");
     user_ = Preconditions.checkNotNull(user, "user should not be null");
   }
 
   protected TaskLogFormatter(TaskLogFormatter task) {
-
-    super(task);
 
     Preconditions.checkNotNull(task, "task should not be null");
 
@@ -41,12 +36,12 @@ public class TaskLogFormatter extends LogFormatter {
     return new TaskLogFormatter(task);
   }
 
-  public static TaskLogFormatter create(String properties, Task task, Environment env) {
-    return new TaskLogFormatter(properties, task, env);
+  public static TaskLogFormatter create(Task task, Environment env) {
+    return new TaskLogFormatter(task, env);
   }
 
-  public static TaskLogFormatter create(String properties, Task task, Environment env, User user) {
-    return new TaskLogFormatter(properties, task, env, user);
+  public static TaskLogFormatter create(Task task, Environment env, User user) {
+    return new TaskLogFormatter(task, env, user);
   }
 
   public static String nextTaskId() {

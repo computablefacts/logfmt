@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class TaskLogFormatterTest {
 
-  static void verify(String format, Map<String, Object> params) {
+  static void verify(String format, Map<String, Object> params, boolean hasUser) {
 
     Map<String, String> map = LogFormatter.parse(format);
 
@@ -30,11 +30,19 @@ public class TaskLogFormatterTest {
     Assert.assertEquals("LOCAL", map.get("env"));
 
     // User
-    Assert.assertEquals("", map.get("client_id"));
-    Assert.assertEquals("", map.get("client_name"));
-    Assert.assertEquals("", map.get("user_id"));
-    Assert.assertEquals("", map.get("user_name"));
-    Assert.assertEquals("", map.get("user_email"));
+    if (hasUser) {
+      Assert.assertEquals("1", map.get("client_id"));
+      Assert.assertEquals("ACME", map.get("client_name"));
+      Assert.assertEquals("1", map.get("user_id"));
+      Assert.assertEquals("jdoe", map.get("user_name"));
+      Assert.assertEquals("j.doe@example.com", map.get("user_email"));
+    } else {
+      Assert.assertEquals("", map.get("client_id"));
+      Assert.assertEquals("", map.get("client_name"));
+      Assert.assertEquals("", map.get("user_id"));
+      Assert.assertEquals("", map.get("user_name"));
+      Assert.assertEquals("", map.get("user_email"));
+    }
 
     // Caller-defined
     for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -51,60 +59,82 @@ public class TaskLogFormatterTest {
     return params;
   }
 
-  static TaskLogFormatter taskLogFormatter() {
-    return TaskLogFormatter.create("git-logfmt.properties",
-        new TaskLogFormatter.Task("test_formatter"),
-        new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL));
+  static LogFormatter taskLogFormatterWithUser() {
+    return TaskLogFormatter
+        .create(new TaskLogFormatter.Task("test_formatter"),
+            new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL),
+            new TaskLogFormatter.User("1", "ACME", "1", "jdoe", "j.doe@example.com"))
+        .addGitProperties("git-logfmt.properties");
+  }
+
+  static LogFormatter taskLogFormatterWithoutUser() {
+    return TaskLogFormatter
+        .create(new TaskLogFormatter.Task("test_formatter"),
+            new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL))
+        .addGitProperties("git-logfmt.properties");
   }
 
   @Test
-  public void testSimpleFatal() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.FATAL)).formatFatal(),
-        params(TaskLogFormatter.eLogLevel.FATAL));
+  public void testFatal() {
+
+    verify(
+        taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.FATAL)).formatFatal(),
+        params(TaskLogFormatter.eLogLevel.FATAL), false);
+
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.FATAL)).formatFatal(),
+        params(TaskLogFormatter.eLogLevel.FATAL), true);
   }
 
   @Test
-  public void testSimpleError() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.ERROR)).formatError(),
-        params(TaskLogFormatter.eLogLevel.ERROR));
+  public void testError() {
+
+    verify(
+        taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.ERROR)).formatError(),
+        params(TaskLogFormatter.eLogLevel.ERROR), false);
+
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.ERROR)).formatError(),
+        params(TaskLogFormatter.eLogLevel.ERROR), true);
   }
 
   @Test
-  public void testSimpleWarn() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.WARN)).formatWarn(),
-        params(TaskLogFormatter.eLogLevel.WARN));
+  public void testWarn() {
+
+    verify(taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.WARN)).formatWarn(),
+        params(TaskLogFormatter.eLogLevel.WARN), false);
+
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.WARN)).formatWarn(),
+        params(TaskLogFormatter.eLogLevel.WARN), true);
   }
 
   @Test
-  public void testSimpleInfo() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.INFO)).formatInfo(),
-        params(TaskLogFormatter.eLogLevel.INFO));
+  public void testInfo() {
+
+    verify(taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.INFO)).formatInfo(),
+        params(TaskLogFormatter.eLogLevel.INFO), false);
+
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.INFO)).formatInfo(),
+        params(TaskLogFormatter.eLogLevel.INFO), true);
   }
 
   @Test
-  public void testSimpleDebug() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.DEBUG)).formatDebug(),
-        params(TaskLogFormatter.eLogLevel.DEBUG));
+  public void testDebug() {
+
+    verify(
+        taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.DEBUG)).formatDebug(),
+        params(TaskLogFormatter.eLogLevel.DEBUG), false);
+
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.DEBUG)).formatDebug(),
+        params(TaskLogFormatter.eLogLevel.DEBUG), true);
   }
 
   @Test
-  public void testSimpleTrace() {
-    verify(taskLogFormatter().add(params(TaskLogFormatter.eLogLevel.TRACE)).formatTrace(),
-        params(TaskLogFormatter.eLogLevel.TRACE));
-  }
+  public void testTrace() {
 
-  @Test
-  public void testCopyTaskLogFormatter() {
+    verify(
+        taskLogFormatterWithoutUser().add(params(TaskLogFormatter.eLogLevel.TRACE)).formatTrace(),
+        params(TaskLogFormatter.eLogLevel.TRACE), false);
 
-    TaskLogFormatter lf1 = taskLogFormatter();
-    LogFormatter lf2 = TaskLogFormatter.create(lf1);
-
-    Map<String, String> map1 = LogFormatter.parse(lf1.formatTrace());
-    Map<String, String> map2 = LogFormatter.parse(lf2.formatTrace());
-
-    map1.remove("timestamp");
-    map2.remove("timestamp");
-
-    Assert.assertEquals(map1, map2);
+    verify(taskLogFormatterWithUser().add(params(TaskLogFormatter.eLogLevel.TRACE)).formatTrace(),
+        params(TaskLogFormatter.eLogLevel.TRACE), true);
   }
 }
