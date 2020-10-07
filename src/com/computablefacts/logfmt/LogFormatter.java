@@ -460,6 +460,10 @@ public class LogFormatter {
 
     try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
 
+      if (is == null) {
+        return new HashMap<>();
+      }
+
       StringBuilder builder = new StringBuilder();
 
       try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {

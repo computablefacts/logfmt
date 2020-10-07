@@ -330,4 +330,13 @@ public class LogFormatterTest {
     Assert.assertTrue(
         lf.formatTrace().contains("msg=\"java.lang.NullPointerException: My custom message."));
   }
+
+  @Test
+  public void testMissingGitProperties() {
+
+    LogFormatter lf = LogFormatter.create().addGitProperties("missing-file.properties")
+        .message("My custom message.");
+
+    Assert.assertTrue(lf.formatTrace().contains("msg=\"My custom message."));
+  }
 }
