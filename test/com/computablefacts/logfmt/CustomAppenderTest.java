@@ -13,6 +13,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Test;
 
+/**
+ * This class is not thread-safe because a {@link CustomAppender} is used. Do not execute methods in
+ * parallel.
+ */
+@net.jcip.annotations.NotThreadSafe
 public class CustomAppenderTest {
 
   @Test
