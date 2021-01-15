@@ -29,7 +29,7 @@ using the following dependency:
 <dependency>
   <groupId>com.computablefacts</groupId>
   <artifactId>logfmt</artifactId>
-  <version>1.x-SNAPSHOT</version>
+  <version>0.x-SNAPSHOT</version>
 </dependency>
 ```
 
