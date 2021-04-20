@@ -300,15 +300,11 @@ public class LogFormatter {
 
     Map<String, Object> gitProperties = loadGitProperties(properties);
 
-    String gitBuildVersion_ = (String) gitProperties.getOrDefault("git.build.version", "");
-    String gitOrigin_ = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
-    String gitBranch_ = (String) gitProperties.getOrDefault("git.branch", "");
-    String gitHead_ = (String) gitProperties.getOrDefault("git.commit.id", "");
-    boolean gitIsDirty_ =
-        Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
+    String gitOrigin = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
+    String gitHead = (String) gitProperties.getOrDefault("git.commit.id.abbrev", "");
+    boolean gitIsDirty = Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
 
-    return add("git_build_version", gitBuildVersion_).add("git_origin", gitOrigin_)
-        .add("git_branch", gitBranch_).add("git_head", gitHead_).add("git_is_dirty", gitIsDirty_);
+    return add("git_origin", gitOrigin).add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
   }
 
   public String formatTrace() {

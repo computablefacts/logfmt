@@ -237,7 +237,7 @@
                     <verbose>false</verbose>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>
-                        ${project.build.outputDirectory}/git-logfmt.properties
+                        ${project.build.outputDirectory}/git.properties
                     </generateGitPropertiesFilename>
                     <format>json</format>
                     <gitDescribe>

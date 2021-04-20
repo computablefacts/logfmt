@@ -12,7 +12,7 @@ public class TaskLogFormatterTest {
 
     Map<String, String> map = LogFormatter.parse(format);
 
-    Assert.assertEquals(14 + params.size(), map.size());
+    Assert.assertEquals(12 + params.size(), map.size());
     Assert.assertFalse(map.get("timestamp").isEmpty());
 
     // Task
@@ -20,9 +20,7 @@ public class TaskLogFormatterTest {
     Assert.assertEquals("test_formatter", map.get("task_name"));
 
     // App
-    Assert.assertFalse(map.get("git_build_version").isEmpty());
     Assert.assertFalse(map.get("git_origin").isEmpty());
-    Assert.assertFalse(map.get("git_branch").isEmpty());
     Assert.assertFalse(map.get("git_head").isEmpty());
     Assert.assertFalse(map.get("git_is_dirty").isEmpty());
 
@@ -64,14 +62,14 @@ public class TaskLogFormatterTest {
         .create(new TaskLogFormatter.Task("test_formatter"),
             new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL),
             new TaskLogFormatter.User("1", "ACME", "1", "jdoe", "j.doe@example.com"))
-        .addGitProperties("git-logfmt.properties");
+        .addGitProperties("git.properties");
   }
 
   static LogFormatter taskLogFormatterWithoutUser() {
     return TaskLogFormatter
         .create(new TaskLogFormatter.Task("test_formatter"),
             new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL))
-        .addGitProperties("git-logfmt.properties");
+        .addGitProperties("git.properties");
   }
 
   @Test
