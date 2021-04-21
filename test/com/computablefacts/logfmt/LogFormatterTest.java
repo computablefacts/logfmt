@@ -336,7 +336,23 @@ public class LogFormatterTest {
 
     LogFormatter lf = LogFormatter.create().addGitProperties("missing-file.properties")
         .message("My custom message.");
+    String trace = lf.formatTrace();
 
-    Assert.assertTrue(lf.formatTrace().contains("msg=\"My custom message."));
+    Assert.assertTrue(trace.contains("git_is_dirty=false"));
+    Assert.assertTrue(trace.contains("git_head=\"\""));
+    Assert.assertTrue(trace.contains("git_origin=\"\""));
+    Assert.assertTrue(trace.contains("msg=\"My custom message."));
+  }
+
+  @Test
+  public void testLoadGitProperties() {
+
+    LogFormatter lf = LogFormatter.create(true).message("My custom message.");
+    String trace = lf.formatTrace();
+
+    Assert.assertTrue(trace.contains("git_is_dirty="));
+    Assert.assertTrue(trace.contains("git_head="));
+    Assert.assertTrue(trace.contains("git_origin=\""));
+    Assert.assertTrue(trace.contains("msg=\"My custom message."));
   }
 }

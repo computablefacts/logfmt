@@ -35,6 +35,11 @@ public class LogFormatter {
 
   protected LogFormatter() {}
 
+  public static LogFormatter create(boolean hasGitProperties) {
+    return hasGitProperties ? new LogFormatter().addGitProperties("git.properties")
+        : new LogFormatter();
+  }
+
   public static LogFormatter create() {
     return new LogFormatter();
   }
