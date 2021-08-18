@@ -108,6 +108,10 @@ public abstract class LogFormatterHttpAppender extends CustomAppender {
 
   protected String readInputStream(InputStream inputStream) throws IOException {
 
+    if (inputStream == null) {
+      return "";
+    }
+
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
     StringBuilder responseString = new StringBuilder();
 
