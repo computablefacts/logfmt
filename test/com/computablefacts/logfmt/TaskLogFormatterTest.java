@@ -12,7 +12,7 @@ public class TaskLogFormatterTest {
 
     Map<String, String> map = LogFormatter.parse(format);
 
-    Assert.assertEquals(12 + params.size(), map.size());
+    Assert.assertEquals(11 + params.size(), map.size());
     Assert.assertFalse(map.get("timestamp").isEmpty());
 
     // Task
@@ -20,7 +20,6 @@ public class TaskLogFormatterTest {
     Assert.assertEquals("test_formatter", map.get("task_name"));
 
     // App
-    Assert.assertFalse(map.get("git_origin").isEmpty());
     Assert.assertFalse(map.get("git_head").isEmpty());
     Assert.assertFalse(map.get("git_is_dirty").isEmpty());
 

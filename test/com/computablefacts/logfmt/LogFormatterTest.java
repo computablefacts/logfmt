@@ -235,20 +235,17 @@ public class LogFormatterTest {
   @Test
   public void testLargeString() {
 
-    String log = LogFormatter.create().add("msg",
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")
-        .format();
+    String msg =
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
-    Assert.assertEquals(
-        "msg=\"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem...\"",
-        log);
+    String log = LogFormatter.create().add("msg", msg).format();
+
+    Assert.assertEquals(String.format("msg=\"%s\"", msg), log);
 
     Map<String, String> map = LogFormatter.parse(log);
 
     Assert.assertEquals(1, map.size());
-    Assert.assertEquals(
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem...",
-        map.get("msg"));
+    Assert.assertEquals(msg, map.get("msg"));
   }
 
   @Test
@@ -340,7 +337,6 @@ public class LogFormatterTest {
 
     Assert.assertTrue(trace.contains("git_is_dirty=false"));
     Assert.assertTrue(trace.contains("git_head=\"\""));
-    Assert.assertTrue(trace.contains("git_origin=\"\""));
     Assert.assertTrue(trace.contains("msg=\"My custom message."));
   }
 
@@ -352,7 +348,6 @@ public class LogFormatterTest {
 
     Assert.assertTrue(trace.contains("git_is_dirty="));
     Assert.assertTrue(trace.contains("git_head="));
-    Assert.assertTrue(trace.contains("git_origin=\""));
     Assert.assertTrue(trace.contains("msg=\"My custom message."));
   }
 }
