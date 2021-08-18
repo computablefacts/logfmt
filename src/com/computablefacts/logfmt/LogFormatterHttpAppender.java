@@ -19,6 +19,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.Var;
 
+@Deprecated
 @CheckReturnValue
 public abstract class LogFormatterHttpAppender extends CustomAppender {
 

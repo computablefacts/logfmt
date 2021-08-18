@@ -9,6 +9,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 
+@Deprecated
 @CheckReturnValue
 public abstract class CustomAppender extends AppenderSkeleton {
 
