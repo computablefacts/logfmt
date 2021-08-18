@@ -305,11 +305,10 @@ public class LogFormatter {
 
     Map<String, Object> gitProperties = loadGitProperties(properties);
 
-    String gitOrigin = (String) gitProperties.getOrDefault("git.remote.origin.url", "");
     String gitHead = (String) gitProperties.getOrDefault("git.commit.id.abbrev", "");
     boolean gitIsDirty = Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
 
-    return add("git_origin", gitOrigin).add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
+    return add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
   }
 
   public String formatTrace() {
