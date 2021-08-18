@@ -377,11 +377,7 @@ public class LogFormatter {
         String string;
 
         if (value instanceof String) {
-          if (((String) value).length() > 80) {
-            string = ((String) value).substring(0, 80) + "...";
-          } else {
-            string = (String) value;
-          }
+          string = (String) value;
         } else if (value instanceof Throwable) {
           string = Throwables.getStackTraceAsString(Throwables.getRootCause((Throwable) value));
         } else {
