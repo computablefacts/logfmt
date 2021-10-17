@@ -338,4 +338,9 @@ public class LogFormatterTest {
     Assert.assertTrue(trace.contains("git_head="));
     Assert.assertTrue(trace.contains("msg=\"My custom message."));
   }
+
+  @Test
+  public void testLoadMissingGitProperties() {
+    Assert.assertTrue(LogFormatter.loadGitProperties("missing-git.properties").isEmpty());
+  }
 }

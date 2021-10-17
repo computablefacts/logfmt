@@ -336,7 +336,7 @@ public class LogFormatter {
    *
    * @return properties.
    */
-  private static ImmutableMap<String, Object> loadGitProperties(String properties) {
+  static ImmutableMap<String, Object> loadGitProperties(String properties) {
 
     Preconditions.checkNotNull(properties, "properties should not be null");
 
@@ -366,7 +366,20 @@ public class LogFormatter {
   @CanIgnoreReturnValue
   public LogFormatter add(Map<String, Object> values) {
     if (values != null && !values.isEmpty()) {
-      map_.putAll(values);
+      for (Map.Entry<String, Object> entry : values.entrySet()) {
+
+        // From the author of ConcurrentHashMap himself (Doug Lea) :
+        //
+        // The main reason that nulls aren't allowed in ConcurrentMaps (ConcurrentHashMaps,
+        // ConcurrentSkipListMaps) is that ambiguities that may be just barely tolerable in
+        // non-concurrent maps can't be accommodated. The main one is that if map.get(key) returns
+        // null, you can't detect whether the key explicitly maps to null vs the key isn't mapped.
+        // In a non-concurrent map, you can check this via map.contains(key), but in a concurrent
+        // one, the map might have changed between calls.
+        if (entry.getKey() != null && entry.getValue() != null) {
+          map_.put(entry.getKey(), entry.getValue());
+        }
+      }
     }
     return this;
   }
@@ -422,19 +435,13 @@ public class LogFormatter {
       String key = entry.getKey();
       Object value = entry.getValue();
 
-      if (key == null) {
-        continue;
-      }
-
       if (builder.length() > 0) {
         builder.append(' ');
       }
 
       builder.append(key).append('=');
 
-      if (value == null) {
-        builder.append("null");
-      } else if (value instanceof Instant) {
+      if (value instanceof Instant) {
         builder.append(((Instant) value).truncatedTo(ChronoUnit.SECONDS).toString());
       } else if (value instanceof Date) {
         Instant instant = ((Date) value).toInstant().truncatedTo(ChronoUnit.SECONDS);

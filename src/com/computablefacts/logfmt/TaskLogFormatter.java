@@ -23,27 +23,6 @@ public class TaskLogFormatter extends LogFormatter {
     user_ = Preconditions.checkNotNull(user, "user should not be null");
   }
 
-  protected TaskLogFormatter(TaskLogFormatter task) {
-
-    Preconditions.checkNotNull(task, "task should not be null");
-
-    task_ = task.task_;
-    env_ = task.env_;
-    user_ = task.user_;
-  }
-
-  public static TaskLogFormatter create(TaskLogFormatter task) {
-    return create(task, false);
-  }
-
-  public static TaskLogFormatter create(TaskLogFormatter task, boolean addGitProperties) {
-    TaskLogFormatter tlf = new TaskLogFormatter(task);
-    if (addGitProperties) {
-      tlf.addGitProperties();
-    }
-    return tlf;
-  }
-
   public static TaskLogFormatter create(Task task, Environment env) {
     return create(task, env, false);
   }
