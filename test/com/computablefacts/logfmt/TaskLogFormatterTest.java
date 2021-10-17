@@ -57,18 +57,14 @@ public class TaskLogFormatterTest {
   }
 
   static LogFormatter taskLogFormatterWithUser() {
-    return TaskLogFormatter
-        .create(new TaskLogFormatter.Task("test_formatter"),
-            new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL),
-            new TaskLogFormatter.User("1", "ACME", "1", "jdoe", "j.doe@example.com"))
-        .addGitProperties("git.properties");
+    return TaskLogFormatter.create(new TaskLogFormatter.Task("test_formatter"),
+        new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL),
+        new TaskLogFormatter.User("1", "ACME", "1", "jdoe", "j.doe@example.com"), true);
   }
 
   static LogFormatter taskLogFormatterWithoutUser() {
-    return TaskLogFormatter
-        .create(new TaskLogFormatter.Task("test_formatter"),
-            new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL))
-        .addGitProperties("git.properties");
+    return TaskLogFormatter.create(new TaskLogFormatter.Task("test_formatter"),
+        new TaskLogFormatter.Environment(TaskLogFormatter.eEnv.LOCAL), true);
   }
 
   @Test

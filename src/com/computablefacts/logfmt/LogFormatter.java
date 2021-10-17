@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.Var;
@@ -25,6 +26,8 @@ import com.google.errorprone.annotations.Var;
 public class LogFormatter {
 
   private static final ObjectMapper mapper_ = new ObjectMapper();
+  private static final ImmutableMap<String, Object> gitProperties_ =
+      loadGitProperties("git.properties");
 
   private static final char SEPARATOR = ' ';
   private static final int KEY_START = 0;
@@ -36,8 +39,7 @@ public class LogFormatter {
   protected LogFormatter() {}
 
   public static LogFormatter create(boolean hasGitProperties) {
-    return hasGitProperties ? new LogFormatter().addGitProperties("git.properties")
-        : new LogFormatter();
+    return hasGitProperties ? new LogFormatter().addGitProperties() : new LogFormatter();
   }
 
   public static LogFormatter create() {
@@ -282,122 +284,6 @@ public class LogFormatter {
     return Collections.emptyMap();
   }
 
-  @CanIgnoreReturnValue
-  public LogFormatter add(Map<String, Object> values) {
-    if (values != null && !values.isEmpty()) {
-      map_.putAll(values);
-    }
-    return this;
-  }
-
-  @CanIgnoreReturnValue
-  public LogFormatter add(String key, Object value) {
-    if (!Strings.isNullOrEmpty(key)) {
-      map_.put(key, value == null ? "null" : value);
-    }
-    return this;
-  }
-
-  @CanIgnoreReturnValue
-  public LogFormatter addGitProperties(String properties) {
-
-    Preconditions.checkNotNull(properties, "properties should not be null");
-
-    Map<String, Object> gitProperties = loadGitProperties(properties);
-
-    String gitHead = (String) gitProperties.getOrDefault("git.commit.id.abbrev", "");
-    boolean gitIsDirty = Boolean.parseBoolean((String) gitProperties.getOrDefault("git.dirty", ""));
-
-    return add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
-  }
-
-  public String formatTrace() {
-    return format(eLogLevel.TRACE);
-  }
-
-  public String formatDebug() {
-    return format(eLogLevel.DEBUG);
-  }
-
-  public String formatInfo() {
-    return format(eLogLevel.INFO);
-  }
-
-  public String formatWarn() {
-    return format(eLogLevel.WARN);
-  }
-
-  public String formatError() {
-    return format(eLogLevel.ERROR);
-  }
-
-  public String formatFatal() {
-    return format(eLogLevel.FATAL);
-  }
-
-  @CanIgnoreReturnValue
-  public LogFormatter message(String msg) {
-    return add("msg", msg);
-  }
-
-  @CanIgnoreReturnValue
-  public LogFormatter message(Throwable throwable) {
-    return add("msg", throwable);
-  }
-
-  public synchronized String format() {
-
-    StringBuilder builder = new StringBuilder();
-
-    for (Map.Entry<String, Object> entry : map_.entrySet()) {
-
-      String key = entry.getKey();
-      Object value = entry.getValue();
-
-      if (key == null) {
-        continue;
-      }
-
-      if (builder.length() > 0) {
-        builder.append(' ');
-      }
-
-      builder.append(key).append('=');
-
-      if (value == null) {
-        builder.append("null");
-      } else if (value instanceof Instant) {
-        builder.append(((Instant) value).truncatedTo(ChronoUnit.SECONDS).toString());
-      } else if (value instanceof Date) {
-        Instant instant = ((Date) value).toInstant().truncatedTo(ChronoUnit.SECONDS);
-        builder.append(instant.toString());
-      } else {
-
-        String string;
-
-        if (value instanceof String) {
-          string = (String) value;
-        } else if (value instanceof Throwable) {
-          string = Throwables.getStackTraceAsString(Throwables.getRootCause((Throwable) value));
-        } else {
-          string = value.toString();
-        }
-
-        quote(builder, string);
-      }
-    }
-
-    map_.clear();
-
-    return builder.toString();
-  }
-
-  protected synchronized String format(eLogLevel level) {
-    return this.add("timestamp", Instant.now().toString())
-        .add("level", Preconditions.checkNotNull(level, "level should not be null").toString())
-        .format();
-  }
-
   /**
    * Maven's Git commit id must be set :
    *
@@ -450,14 +336,14 @@ public class LogFormatter {
    *
    * @return properties.
    */
-  private Map<String, Object> loadGitProperties(String properties) {
+  private static ImmutableMap<String, Object> loadGitProperties(String properties) {
 
     Preconditions.checkNotNull(properties, "properties should not be null");
 
     try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
 
       if (is == null) {
-        return new HashMap<>();
+        return ImmutableMap.of();
       }
 
       StringBuilder builder = new StringBuilder();
@@ -471,10 +357,125 @@ public class LogFormatter {
           builder.append(line).append('\n');
         }
       }
-      return asObject(builder.toString());
+      return ImmutableMap.copyOf(asObject(builder.toString()));
     } catch (IOException e) {
-      return new HashMap<>();
+      return ImmutableMap.of();
     }
+  }
+
+  @CanIgnoreReturnValue
+  public LogFormatter add(Map<String, Object> values) {
+    if (values != null && !values.isEmpty()) {
+      map_.putAll(values);
+    }
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  public LogFormatter add(String key, Object value) {
+    if (!Strings.isNullOrEmpty(key)) {
+      map_.put(key, value == null ? "null" : value);
+    }
+    return this;
+  }
+
+  public String formatTrace() {
+    return format(eLogLevel.TRACE);
+  }
+
+  public String formatDebug() {
+    return format(eLogLevel.DEBUG);
+  }
+
+  public String formatInfo() {
+    return format(eLogLevel.INFO);
+  }
+
+  public String formatWarn() {
+    return format(eLogLevel.WARN);
+  }
+
+  public String formatError() {
+    return format(eLogLevel.ERROR);
+  }
+
+  public String formatFatal() {
+    return format(eLogLevel.FATAL);
+  }
+
+  @CanIgnoreReturnValue
+  public LogFormatter message(String msg) {
+    return add("msg", msg);
+  }
+
+  @CanIgnoreReturnValue
+  public LogFormatter message(Throwable throwable) {
+    return add("msg", throwable);
+  }
+
+  public String format() {
+
+    StringBuilder builder = new StringBuilder();
+
+    for (Map.Entry<String, Object> entry : map_.entrySet()) {
+
+      String key = entry.getKey();
+      Object value = entry.getValue();
+
+      if (key == null) {
+        continue;
+      }
+
+      if (builder.length() > 0) {
+        builder.append(' ');
+      }
+
+      builder.append(key).append('=');
+
+      if (value == null) {
+        builder.append("null");
+      } else if (value instanceof Instant) {
+        builder.append(((Instant) value).truncatedTo(ChronoUnit.SECONDS).toString());
+      } else if (value instanceof Date) {
+        Instant instant = ((Date) value).toInstant().truncatedTo(ChronoUnit.SECONDS);
+        builder.append(instant.toString());
+      } else {
+
+        String string;
+
+        if (value instanceof String) {
+          string = (String) value;
+        } else if (value instanceof Throwable) {
+          string = Throwables.getStackTraceAsString(Throwables.getRootCause((Throwable) value));
+        } else {
+          string = value.toString();
+        }
+
+        quote(builder, string);
+      }
+    }
+
+    map_.clear();
+
+    return builder.toString();
+  }
+
+  protected String format(eLogLevel level) {
+    return this.add("timestamp", Instant.now().toString())
+        .add("level", Preconditions.checkNotNull(level, "level should not be null").toString())
+        .format();
+  }
+
+  @CanIgnoreReturnValue
+  protected LogFormatter addGitProperties() {
+
+    Preconditions.checkState(gitProperties_ != null, "gitProperties should not be null");
+
+    String gitHead = (String) gitProperties_.getOrDefault("git.commit.id.abbrev", "");
+    boolean gitIsDirty =
+        Boolean.parseBoolean((String) gitProperties_.getOrDefault("git.dirty", ""));
+
+    return this.add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
   }
 
   enum eLogLevel {

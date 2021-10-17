@@ -33,15 +33,40 @@ public class TaskLogFormatter extends LogFormatter {
   }
 
   public static TaskLogFormatter create(TaskLogFormatter task) {
-    return new TaskLogFormatter(task);
+    return create(task, false);
+  }
+
+  public static TaskLogFormatter create(TaskLogFormatter task, boolean addGitProperties) {
+    TaskLogFormatter tlf = new TaskLogFormatter(task);
+    if (addGitProperties) {
+      tlf.addGitProperties();
+    }
+    return tlf;
   }
 
   public static TaskLogFormatter create(Task task, Environment env) {
-    return new TaskLogFormatter(task, env);
+    return create(task, env, false);
+  }
+
+  public static TaskLogFormatter create(Task task, Environment env, boolean addGitProperties) {
+    TaskLogFormatter tlf = new TaskLogFormatter(task, env);
+    if (addGitProperties) {
+      tlf.addGitProperties();
+    }
+    return tlf;
   }
 
   public static TaskLogFormatter create(Task task, Environment env, User user) {
-    return new TaskLogFormatter(task, env, user);
+    return create(task, env, user, false);
+  }
+
+  public static TaskLogFormatter create(Task task, Environment env, User user,
+      boolean addGitProperties) {
+    TaskLogFormatter tlf = new TaskLogFormatter(task, env, user);
+    if (addGitProperties) {
+      tlf.addGitProperties();
+    }
+    return tlf;
   }
 
   public static String nextTaskId() {
