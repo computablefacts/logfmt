@@ -434,7 +434,7 @@ public class LogFormatter {
 
     StringBuilder builder = new StringBuilder();
 
-    for (Map.Entry<String, Object> entry : map_.entrySet()) {
+    map_.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEachOrdered(entry -> {
 
       String key = entry.getKey();
       Object value = entry.getValue();
@@ -464,7 +464,7 @@ public class LogFormatter {
 
         quote(builder, string);
       }
-    }
+    });
 
     map_.clear();
 

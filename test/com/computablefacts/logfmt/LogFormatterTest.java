@@ -350,7 +350,7 @@ public class LogFormatterTest {
     String log =
         LogFormatter.create().add("user_name", "jdoe").add("user_password", "my_password").format();
 
-    Assert.assertEquals("user_password=\"******\" user_name=jdoe", log);
+    Assert.assertEquals("user_name=jdoe user_password=\"******\"", log);
   }
 
   @Test
@@ -359,6 +359,6 @@ public class LogFormatterTest {
     String log =
         LogFormatter.create().add("USER_NAME", "jdoe").add("USER_PASSWORD", "my_password").format();
 
-    Assert.assertEquals("USER_PASSWORD=\"******\" USER_NAME=jdoe", log);
+    Assert.assertEquals("USER_NAME=jdoe USER_PASSWORD=\"******\"", log);
   }
 }
