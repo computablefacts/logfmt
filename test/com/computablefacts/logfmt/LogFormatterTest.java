@@ -343,4 +343,22 @@ public class LogFormatterTest {
   public void testLoadMissingGitProperties() {
     Assert.assertTrue(LogFormatter.loadGitProperties("missing-git.properties").isEmpty());
   }
+
+  @Test
+  public void testAnonymizePasswordsKeysInLowercase() {
+
+    String log =
+        LogFormatter.create().add("user_name", "jdoe").add("user_password", "my_password").format();
+
+    Assert.assertEquals("user_password=\"******\" user_name=jdoe", log);
+  }
+
+  @Test
+  public void testAnonymizePasswordsKeysInUppercase() {
+
+    String log =
+        LogFormatter.create().add("USER_NAME", "jdoe").add("USER_PASSWORD", "my_password").format();
+
+    Assert.assertEquals("USER_PASSWORD=\"******\" USER_NAME=jdoe", log);
+  }
 }

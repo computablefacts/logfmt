@@ -377,7 +377,7 @@ public class LogFormatter {
         // In a non-concurrent map, you can check this via map.contains(key), but in a concurrent
         // one, the map might have changed between calls.
         if (entry.getKey() != null && entry.getValue() != null) {
-          map_.put(entry.getKey(), entry.getValue());
+          add(entry.getKey(), entry.getValue());
         }
       }
     }
@@ -387,7 +387,11 @@ public class LogFormatter {
   @CanIgnoreReturnValue
   public LogFormatter add(String key, Object value) {
     if (!Strings.isNullOrEmpty(key)) {
-      map_.put(key, value == null ? "null" : value);
+      if (key.toLowerCase().contains("password")) {
+        map_.put(key, "******");
+      } else {
+        map_.put(key, value == null ? "null" : value);
+      }
     }
     return this;
   }
