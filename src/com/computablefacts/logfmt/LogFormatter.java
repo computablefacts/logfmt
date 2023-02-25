@@ -1,33 +1,20 @@
 package com.computablefacts.logfmt;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
+import com.google.errorprone.annotations.Var;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.CheckReturnValue;
-import com.google.errorprone.annotations.Var;
-
 @CheckReturnValue
-public class LogFormatter {
-
-  private static final ObjectMapper mapper_ = new ObjectMapper();
-  private static final ImmutableMap<String, Object> gitProperties_ =
-      loadGitProperties("git.properties");
+final public class LogFormatter {
 
   private static final char SEPARATOR = ' ';
   private static final int KEY_START = 0;
@@ -36,10 +23,7 @@ public class LogFormatter {
 
   private final Map<String, Object> map_ = new ConcurrentHashMap<>();
 
-  protected LogFormatter() {}
-
-  public static LogFormatter create(boolean hasGitProperties) {
-    return hasGitProperties ? new LogFormatter().addGitProperties() : new LogFormatter();
+  private LogFormatter() {
   }
 
   public static LogFormatter create() {
@@ -51,20 +35,15 @@ public class LogFormatter {
     Preconditions.checkNotNull(log, "log should not be null");
 
     char[] line = log.toCharArray();
-    @Var
-    ScanState state = ScanState.NEXT;
+    @Var ScanState state = ScanState.NEXT;
     Map<String, String> parsed = new HashMap<>();
-    @Var
-    boolean quoted = false;
-    @Var
-    boolean escaped;
-    @Var
-    int[] pos = new int[3];
+    @Var boolean quoted = false;
+    @Var boolean escaped;
+    @Var int[] pos = new int[3];
 
     for (int i = 0; i < line.length; i++) {
 
-      @Var
-      char b = line[i];
+      @Var char b = line[i];
 
       switch (state) {
         case NEXT:
@@ -123,15 +102,12 @@ public class LogFormatter {
       }
     }
 
-    if (parsed.isEmpty() && line.length > 0 && pos[KEY_START] == 0 && pos[KEY_LEN] == 0
-        && pos[VAL_START] == 0) {
+    if (parsed.isEmpty() && line.length > 0 && pos[KEY_START] == 0 && pos[KEY_LEN] == 0 && pos[VAL_START] == 0) {
       parsed.put(new String(line), "");
     } else if (pos[KEY_START] + pos[KEY_LEN] > 0) {
 
       char[] key = slice(pos[KEY_START], pos[KEY_LEN], line);
-      char[] value =
-          (pos[VAL_START] > 0) ? slice(pos[VAL_START], line.length - pos[VAL_START], line)
-              : new char[0];
+      char[] value = (pos[VAL_START] > 0) ? slice(pos[VAL_START], line.length - pos[VAL_START], line) : new char[0];
 
       parsed.put(new String(key), unquote(value));
     }
@@ -161,8 +137,7 @@ public class LogFormatter {
 
       char c = string.charAt(i);
 
-      if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
-          || (c == '-' || c == '.'))) {
+      if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '-' || c == '.'))) {
         return true;
       }
     }
@@ -272,95 +247,6 @@ public class LogFormatter {
       }
     }
     return builder.toString();
-  }
-
-  private static Map<String, Object> asObject(String json) {
-    try {
-      return json == null ? Collections.emptyMap()
-          : mapper_.readValue(json, TypeFactory.defaultInstance().constructType(Map.class));
-    } catch (IOException e) {
-      // TODO
-    }
-    return Collections.emptyMap();
-  }
-
-  /**
-   * Maven's Git commit id must be set :
-   *
-   * <pre>
-   *   <plugin>
-   *       <groupId>pl.project13.maven</groupId>
-   *       <version>${git-commit-id-plugin.version}</version>
-   *       <artifactId>git-commit-id-plugin</artifactId>
-   *       <executions>
-   *           <execution>
-   *               <id>get-the-git-infos</id>
-   *               <goals>
-   *                   <goal>revision</goal>
-   *               </goals>
-   *           </execution>
-   *           <execution>
-   *               <id>validate-the-git-infos</id>
-   *               <goals>
-   *                   <goal>validateRevision</goal>
-   *               </goals>
-   *               <phase>package</phase>
-   *           </execution>
-   *       </executions>
-   *       <configuration>
-   *           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-   *           <prefix>git</prefix>
-   *           <verbose>false</verbose>
-   *           <generateGitPropertiesFile>true</generateGitPropertiesFile>
-   *           <generateGitPropertiesFilename>
-   *               ${project.build.outputDirectory}/git.properties
-   *           </generateGitPropertiesFilename>
-   *           <format>json</format>
-   *           <gitDescribe>
-   *               <skip>false</skip>
-   *               <always>false</always>
-   *               <dirty>-dirty</dirty>
-   *           </gitDescribe>
-   *           <!--
-   *           <validationProperties>
-   *               <validationProperty>
-   *                   <name>validating git dirty</name>
-   *                   <value>${git.dirty}</value>
-   *                   <shouldMatchTo>false</shouldMatchTo>
-   *               </validationProperty>
-   *           </validationProperties>
-   *           -->
-   *       </configuration>
-   *   </plugin>
-   * </pre>
-   *
-   * @return properties.
-   */
-  static ImmutableMap<String, Object> loadGitProperties(String properties) {
-
-    Preconditions.checkNotNull(properties, "properties should not be null");
-
-    try (InputStream is = TaskLogFormatter.class.getClassLoader().getResourceAsStream(properties)) {
-
-      if (is == null) {
-        return ImmutableMap.of();
-      }
-
-      StringBuilder builder = new StringBuilder();
-
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-
-        @Var
-        String line;
-
-        while ((line = br.readLine()) != null) {
-          builder.append(line).append('\n');
-        }
-      }
-      return ImmutableMap.copyOf(asObject(builder.toString()));
-    } catch (IOException e) {
-      return ImmutableMap.of();
-    }
   }
 
   @CanIgnoreReturnValue
@@ -473,20 +359,7 @@ public class LogFormatter {
 
   protected String format(eLogLevel level) {
     return this.add("timestamp", Instant.now().toString())
-        .add("level", Preconditions.checkNotNull(level, "level should not be null").toString())
-        .format();
-  }
-
-  @CanIgnoreReturnValue
-  protected LogFormatter addGitProperties() {
-
-    Preconditions.checkState(gitProperties_ != null, "gitProperties should not be null");
-
-    String gitHead = (String) gitProperties_.getOrDefault("git.commit.id.abbrev", "");
-    boolean gitIsDirty =
-        Boolean.parseBoolean((String) gitProperties_.getOrDefault("git.dirty", ""));
-
-    return this.add("git_head", gitHead).add("git_is_dirty", gitIsDirty);
+        .add("level", Preconditions.checkNotNull(level, "level should not be null").toString()).format();
   }
 
   enum eLogLevel {

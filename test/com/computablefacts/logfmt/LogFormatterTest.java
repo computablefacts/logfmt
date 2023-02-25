@@ -3,9 +3,9 @@ package com.computablefacts.logfmt;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,8 +27,7 @@ public class LogFormatterTest {
   @Test
   public void testDoubleQuotes() {
 
-    String log =
-        LogFormatter.create().add("msg", "Message with \"double quotes\" inside.").format();
+    String log = LogFormatter.create().add("msg", "Message with \"double quotes\" inside.").format();
 
     Assert.assertEquals("msg=\"Message with \\\"double quotes\\\" inside.\"", log);
 
@@ -205,19 +204,21 @@ public class LogFormatterTest {
   public void testMultipleKeys() {
 
     String log = LogFormatter.create().add("key1", "value1").add("key2", "value 2")
-        .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4).format();
+        .add("key3", "Hello \"world\"!\nHello \"world\"!").add("key4", 4)
+        .add("key5", "Hello \"world\"!\rHello \"world\"!").format();
 
     Assert.assertEquals(
-        "key1=value1 key2=\"value 2\" key3=\"Hello \\\"world\\\"!\\nHello \\\"world\\\"!\" key4=4",
+        "key1=value1 key2=\"value 2\" key3=\"Hello \\\"world\\\"!\\nHello \\\"world\\\"!\" key4=4 key5=\"Hello \\\"world\\\"!\\rHello \\\"world\\\"!\"",
         log);
 
     Map<String, String> map = LogFormatter.parse(log);
 
-    Assert.assertEquals(4, map.size());
+    Assert.assertEquals(5, map.size());
     Assert.assertEquals("value1", map.get("key1"));
     Assert.assertEquals("value 2", map.get("key2"));
     Assert.assertEquals("Hello \"world\"!\nHello \"world\"!", map.get("key3"));
     Assert.assertEquals("4", map.get("key4"));
+    Assert.assertEquals("Hello \"world\"!\rHello \"world\"!", map.get("key5"));
   }
 
   @Test
@@ -235,8 +236,7 @@ public class LogFormatterTest {
   @Test
   public void testLargeString() {
 
-    String msg =
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    String msg = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
     String log = LogFormatter.create().add("msg", msg).format();
 
@@ -298,8 +298,7 @@ public class LogFormatterTest {
   @Test
   public void testTrimWhitespaces() {
 
-    Map<String, String> map =
-        LogFormatter.parse("foo=bar a=1\\4 baz=\"hello kitty\" cool%story=bro f %^asdf  ");
+    Map<String, String> map = LogFormatter.parse("foo=bar a=1\\4 baz=\"hello kitty\" cool%story=bro f %^asdf  ");
 
     Assert.assertEquals(6, map.size());
     Assert.assertEquals("bar", map.get("foo"));
@@ -324,31 +323,81 @@ public class LogFormatterTest {
 
     LogFormatter lf = LogFormatter.create().message(new NullPointerException("My custom message."));
 
-    Assert.assertTrue(
-        lf.formatTrace().contains("msg=\"java.lang.NullPointerException: My custom message."));
+    Assert.assertTrue(lf.formatTrace().contains("msg=\"java.lang.NullPointerException: My custom message."));
   }
 
   @Test
-  public void testLoadGitProperties() {
+  public void testAddMap() {
 
-    LogFormatter lf = LogFormatter.create(true).message("My custom message.");
+    Map<String, Object> map = new HashMap<>();
+    map.put("user", "John Doe");
+    map.put("email", "jdoe@example.com");
+
+    LogFormatter lf = LogFormatter.create().add(map);
     String trace = lf.formatTrace();
 
-    Assert.assertTrue(trace.contains("git_is_dirty="));
-    Assert.assertTrue(trace.contains("git_head="));
-    Assert.assertTrue(trace.contains("msg=\"My custom message."));
+    Assert.assertTrue(trace.contains("user=\"John Doe\""));
+    Assert.assertTrue(trace.contains("email=\"jdoe@example.com\""));
   }
 
   @Test
-  public void testLoadMissingGitProperties() {
-    Assert.assertTrue(LogFormatter.loadGitProperties("missing-git.properties").isEmpty());
+  public void testLevelIsTrace() {
+
+    String msg = "Level should be TRACE!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatTrace().contains("level=TRACE"));
+  }
+
+  @Test
+  public void testLevelIsDebug() {
+
+    String msg = "Level should be DEBUG!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatDebug().contains("level=DEBUG"));
+  }
+
+  @Test
+  public void testLevelIsInfo() {
+
+    String msg = "Level should be INFO!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatInfo().contains("level=INFO"));
+  }
+
+  @Test
+  public void testLevelIsWarn() {
+
+    String msg = "Level should be WARN!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatWarn().contains("level=WARN"));
+  }
+
+  @Test
+  public void testLevelIsERROR() {
+
+    String msg = "Level should be ERROR!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatError().contains("level=ERROR"));
+  }
+
+  @Test
+  public void testLevelIsFatal() {
+
+    String msg = "Level should be FATAL!";
+    LogFormatter lf = LogFormatter.create().message(msg);
+
+    Assert.assertTrue(lf.formatFatal().contains("level=FATAL"));
   }
 
   @Test
   public void testAnonymizePasswordsKeysInLowercase() {
 
-    String log =
-        LogFormatter.create().add("user_name", "jdoe").add("user_password", "my_password").format();
+    String log = LogFormatter.create().add("user_name", "jdoe").add("user_password", "my_password").format();
 
     Assert.assertEquals("user_name=jdoe user_password=\"******\"", log);
   }
@@ -356,8 +405,7 @@ public class LogFormatterTest {
   @Test
   public void testAnonymizePasswordsKeysInUppercase() {
 
-    String log =
-        LogFormatter.create().add("USER_NAME", "jdoe").add("USER_PASSWORD", "my_password").format();
+    String log = LogFormatter.create().add("USER_NAME", "jdoe").add("USER_PASSWORD", "my_password").format();
 
     Assert.assertEquals("USER_NAME=jdoe USER_PASSWORD=\"******\"", log);
   }
