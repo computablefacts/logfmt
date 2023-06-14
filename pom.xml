@@ -39,7 +39,7 @@
     </developers>
 
     <properties>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <error-prone.version>2.3.1</error-prone.version>
         <jackson.version>2.12.7.1</jackson.version>
         <junit.version>4.13.1</junit.version>
